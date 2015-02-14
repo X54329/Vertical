@@ -23,6 +23,7 @@
 		V_p = h(t, V_p, L, S)
 		
 		d   = k(V_p, S, L, H) is in D
+		V_p = d(V_p)
 		dchain.append(d)
 		
 		if S_y <=0:
