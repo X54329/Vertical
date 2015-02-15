@@ -38,14 +38,15 @@ def k(decisions, v_player, position_player, ledges, score):
     r = random.randint(0, 2)
     return decisions[r]
 
-def generate_ledges():
-    num_ledges = 10000
-    result = []
-    for i in xrange(1, 10000):
-        r_x = random.randint(1, 10000)
-        r_y = random.randint(1, 10000)
-        result.append([r_x, r_y])
-    return result
+def generate_ledges(ledges):
+    random.seed(h)
+    need_to_gen = False
+    for ledge in ledges:
+        if ledge[1] == 0:
+            need_to_gen = True
+    if need_to_gen:
+        l = [random.random()*50, random.random()*100]
+    return ledges
 
 def simulate():
     gravity = 5
@@ -54,7 +55,7 @@ def simulate():
     v_player = [0, 0] # [0] is x, [1] is y
     score = 0
     position_player = [0, 0] # player position
-    ledges = generate_ledges() # ledge vertices
+    ledges = generate_ledges([]) # ledge vertices
     decision_history = [] # decisions
     t = 0
 
@@ -63,7 +64,7 @@ def simulate():
         # update environment
 
         score += v_scroll
-        ledges = f(t, ledges, v_scroll)
+        ledges = generate_ledges(f(t, ledges, v_scroll))
         position_player = g(position_player, v_player)
         v_player = h(t, v_player, ledges, position_player, v_scroll, gravity)
 
