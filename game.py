@@ -1,68 +1,83 @@
 import random
 
-def up(v):
-    v[1] += 5
-    return v
+def up(v_player):
+    v_player[1] += 5
+    return v_player
 
-def left(v):
-    v[0] -= 5
-    return v
+def left(v_player):
+    v_player[0] -= 5
+    return v_player
 
-def right(v):
-    v[0] += 5
-    return v
+def right(v_player):
+    v_player[0] += 5
+    return v_player
 
-def f(t, L, v):
-    for l in L:
-        l -= v
-    return L
+def f(t, ledges, v_scroll):
+    for ledge in ledges:
+        ledge[1] -= v_scroll
+    return ledges
 
-def g(S, v_p):
-    S[0] += v_p[0]
-    S[1] += v_p[1]
-    return S
+def g(position_player, v_player):
+    position_player[0] += v_player[0]
+    position_player[1] += v_player[1]
+    return position_player
 
-def h(t, v_p, L, S, v, G):
-    v_p[1] = v_p[1] - G
-    if v_p[1] <= 0:
-        for l in L:
-            if s_y == L[1]:
-                v_p[1] = -v
+def h(t, v_player, ledges, position_player, v_scroll, gravity):
+    v_player[1] = v_player[1] - gravity
+    if v_player[1] <= 0:
+        for ledge in ledges:
+            if position_player[1] == ledge[1]:
+                v_player[1] = -v_scroll
             else:
-                v_p[1] -= g
+                v_player[1] -= gravity
     else:
-        v_p[1] -= g
-    return v_p
+        v_player[1] -= gravity
+    return v_player
 
-def k(D, v_p, S, L, H):
+def k(decisions, v_player, position_player, ledges, score):
     r = random.randint(0, 2)
-    return D[r]
+    return decisions[r]
+
+def generate_ledges():
+    num_ledges = 10000
+    result = []
+    for i in xrange(1, 10000):
+        r_x = random.randint(1, 10000)
+        r_y = random.randint(1, 10000)
+        result.append([r_x, r_y])
+    return result
 
 def simulate():
-    G = 5
-    D = [up, left, right]
-    v = 1 # scroll velocity
-    v_p = [0, 0]
-    H = 0
-    S = [0, 0] # player position
-    L = [] # ledge vertices
-    dchain = [] # decisions
+    gravity = 5
+    decisions = [up, left, right]
+    v_scroll = 1 # scroll velocity
+    v_player = [0, 0] # [0] is x, [1] is y
+    score = 0
+    position_player = [0, 0] # player position
+    ledges = generate_ledges() # ledge vertices
+    decision_history = [] # decisions
     t = 0
 
     for t in xrange(0, 10000):
-        H += v
-        L = f(t, L, v)
-        S = g(S, v_p)
-        v_p = h(t, v_p, L, S, v, G)
 
-        d = k(D, v_p, S, L, H) # in D
-        v_p = d(v_p)
-        dchain.append(d)
+        # update environment
 
-        if S[1] < 0:
-            # losing condition
+        score += v_scroll
+        ledges = f(t, ledges, v_scroll)
+        position_player = g(position_player, v_player)
+        v_player = h(t, v_player, ledges, position_player, v_scroll, gravity)
+
+        # make decision
+
+        decision = k(decisions, v_player, position_player, ledges, score)
+        v_player = decision(v_player)
+        decision_history.append(decision)
+
+        # check losing condition
+
+        if position_player[1] < 0:
             break
 
-    return (H, dchain)
+    return (score, decision_history)
 
 print simulate()[0]
