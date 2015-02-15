@@ -22,13 +22,16 @@ def g(S, v_p):
     S[1] += v_p[1]
     return S
 
-def h(t, v_p, L, S, v):
+def h(t, v_p, L, S, v, G):
+    v_p[1] = v_p[1] - G
     if v_p[1] <= 0:
         for l in L:
             if s_y == L[1]:
                 v_p[1] = -v
             else:
                 v_p[1] -= g
+    else:
+        v_p[1] -= g
     return v_p
 
 def k(D, v_p, S, L, H):
@@ -36,7 +39,7 @@ def k(D, v_p, S, L, H):
     return D[r]
 
 def simulate():
-    G = 9.8
+    G = 5
     D = [up, left, right]
     v = 1 # scroll velocity
     v_p = [0, 0]
@@ -50,7 +53,7 @@ def simulate():
         H += v
         L = f(t, L, v)
         S = g(S, v_p)
-        v_p = h(t, v_p, L, S, v)
+        v_p = h(t, v_p, L, S, v, G)
 
         d = k(D, v_p, S, L, H) # in D
         v_p = d(v_p)
